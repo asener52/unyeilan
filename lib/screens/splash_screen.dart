@@ -118,7 +118,7 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       const SizedBox(height: 24),
                       const Text(
-                        'Ünye Burada',
+                        'e-Ünye Duyuru',
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w800,

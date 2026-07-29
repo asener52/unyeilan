@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'api_service.dart';
 // Arka planda gelen bildirimleri işle (top-level function)
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
   await NotificationService().showLocalNotification(
     title: message.notification?.title ?? 'Ünye Belediyesi',
     body: message.notification?.body ?? '',

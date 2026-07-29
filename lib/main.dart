@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -21,6 +23,17 @@ import 'screens/content_detail_screen.dart';
 /// Global navigator key — ApiService'in 401/403'te login'e yönlendirmesi için
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+Future<bool> _firebaseConfigAvailable() async {
+  if (kIsWeb || defaultTargetPlatform != TargetPlatform.iOS) return true;
+  try {
+    return await const MethodChannel('tr.gov.unye.unyeIlan/config')
+            .invokeMethod<bool>('hasFirebaseConfig') ??
+        false;
+  } on PlatformException {
+    return false;
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -31,12 +44,14 @@ void main() async {
   ApiService.setNavigatorKey(navigatorKey);
 
 
-  try {
-    await Firebase.initializeApp();
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-    await NotificationService().initialize();
-  } catch (e) {
-    debugPrint('Firebase başlatılamadı: $e');
+  if (await _firebaseConfigAvailable()) {
+    try {
+      await Firebase.initializeApp();
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+      await NotificationService().initialize();
+    } catch (e) {
+      debugPrint('Bildirim servisi kullanılamıyor: $e');
+    }
   }
 
   runApp(const UnyeBuradaApp());
@@ -53,7 +68,7 @@ class UnyeBuradaApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ContentProvider()),
       ],
       child: MaterialApp(
-        title: 'Ünye Burada',
+        title: 'e-Ünye Duyuru',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         navigatorKey: navigatorKey,

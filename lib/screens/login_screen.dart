@@ -415,7 +415,7 @@ class _HeroBolum extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         const Text(
-          'Ünye Burada',
+          'e-Ünye Duyuru',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w800,
