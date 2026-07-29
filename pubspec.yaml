@@ -1,0 +1,76 @@
+name: unye_burada
+description: Ünye Burada - Ünye Belediyesi Mobil Uygulaması
+publish_to: 'none'
+version: 2.0.0+3
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # State management
+  provider: ^6.1.2
+
+  # HTTP
+  dio: ^5.7.0
+
+  # Firebase
+  firebase_core: ^3.13.0
+  firebase_messaging: ^15.2.5
+
+  # Local notifications
+  flutter_local_notifications: ^18.0.1
+
+  # Storage
+  shared_preferences: ^2.3.3
+
+  # Image
+  cached_network_image: ^3.4.1
+
+  # Date / formatting
+  intl: ^0.20.1
+  timeago: ^3.7.0
+
+  # HTML renderer
+  flutter_html: ^3.0.0-beta.2
+
+  # UI extras
+  shimmer: ^3.0.0
+
+  # Harita
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+
+  # WebView (vergi borcu)
+  webview_flutter: ^4.10.0
+
+  # URL açma (telefon, harita)
+  url_launcher: ^6.3.1
+
+  # Tarih seçici
+  flutter_datetime_picker_plus: ^2.1.0
+
+  # Fotoğraf/dosya seçici
+  image_picker: ^1.1.2
+
+  # Konum
+  geolocator: ^13.0.1
+  permission_handler: ^11.3.1
+
+
+  # i18n
+  flutter_localizations:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
