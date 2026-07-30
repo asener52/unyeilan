@@ -12,18 +12,5 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
-
-    let configRegistrar = engineBridge.pluginRegistry.registrar(forPlugin: "AppConfig")
-    let configChannel = FlutterMethodChannel(
-      name: "tr.gov.unye.unyeIlan/config",
-      binaryMessenger: configRegistrar.messenger()
-    )
-    configChannel.setMethodCallHandler { call, result in
-      guard call.method == "hasFirebaseConfig" else {
-        result(FlutterMethodNotImplemented)
-        return
-      }
-      result(Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil)
-    }
   }
 }

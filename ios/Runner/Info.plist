@@ -29,23 +29,25 @@
 
 	<!-- Konum izinleri -->
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Bulunduğunuz mahalleye özel haber ve bildirimleri gösterebilmek için konumunuza erişim istiyoruz.</string>
+	<string>Bulunduğunuz mahalleyi belirleyip size bölgenize özel duyuru ve hizmetleri gösterebilmek için konumunuza erişmemiz gerekiyor.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Bulunduğunuz mahalleye özel haber ve bildirimleri gösterebilmek için konumunuza erişim istiyoruz.</string>
+	<string>Mahallenize özel önemli duyuruları uygulama arka plandayken de sunabilmek için konumunuza erişmemiz gerekiyor.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Mahallenize özel önemli duyuruları uygulama arka plandayken de sunabilmek için konumunuza erişmemiz gerekiyor.</string>
 
 	<!-- Kamera izni -->
 	<key>NSCameraUsageDescription</key>
-	<string>Şikayet ve talep bildirimlerinize fotoğraf eklemek için kameraya erişim istiyoruz.</string>
+	<string>Şikâyet, talep ve yarışma başvurularınıza fotoğraf ekleyebilmeniz için kameraya erişmemiz gerekiyor.</string>
 
 	<!-- Fotoğraf kütüphanesi -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Şikayet ve talep bildirimlerinize fotoğraf eklemek için fotoğraf kütüphanenize erişim istiyoruz.</string>
+	<string>Şikâyet, talep, takas ve yarışma başvurularınıza fotoğraf seçebilmeniz için fotoğraf arşivinize erişmemiz gerekiyor.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Fotoğrafları kaydetmek için fotoğraf kütüphanenize erişim istiyoruz.</string>
+	<string>Uygulamadaki görselleri isteğiniz üzerine fotoğraf arşivinize kaydedebilmek için erişmemiz gerekiyor.</string>
 
 	<!-- Mikrofon (image_picker video için) -->
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Video kaydı için mikrofona erişim istiyoruz.</string>
+	<string>Kamerayla sesli video kaydı oluşturabilmeniz için mikrofona erişmemiz gerekiyor.</string>
 
 	<!-- Uygulama transport security — HTTPS zorunlu -->
 	<key>NSAppTransportSecurity</key>

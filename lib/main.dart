@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -23,38 +21,35 @@ import 'screens/content_detail_screen.dart';
 /// Global navigator key — ApiService'in 401/403'te login'e yönlendirmesi için
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-Future<bool> _firebaseConfigAvailable() async {
-  if (kIsWeb || defaultTargetPlatform != TargetPlatform.iOS) return true;
-  try {
-    return await const MethodChannel('tr.gov.unye.unyeIlan/config')
-            .invokeMethod<bool>('hasFirebaseConfig') ??
-        false;
-  } on PlatformException {
-    return false;
-  }
-}
-
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await initializeDateFormatting('tr_TR', null);
   timeago.setLocaleMessages('tr', timeago.TrMessages());
 
   // navigatorKey'i ApiService'e bağla (401/403 otomatik çıkış için)
   ApiService.setNavigatorKey(navigatorKey);
 
 
-  if (await _firebaseConfigAvailable()) {
-    try {
-      await Firebase.initializeApp();
-      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-      await NotificationService().initialize();
-    } catch (e) {
-      debugPrint('Bildirim servisi kullanılamıyor: $e');
-    }
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  runApp(const UnyeBuradaApp());
+  _initializeServices();
+}
+
+Future<void> _initializeServices() async {
+  try {
+    await initializeDateFormatting('tr_TR', null);
+  } catch (e) {
+    debugPrint('Türkçe tarih biçimleri yüklenemedi: $e');
   }
 
-  runApp(const UnyeBuradaApp());
+  try {
+    await Firebase.initializeApp();
+    await NotificationService().initialize();
+  } catch (e, stackTrace) {
+    // Firebase/bildirim sorunu uygulamanın ilk ekranını engellememeli.
+    debugPrint('Bildirim servisi kullanılamıyor: $e');
+    debugPrintStack(stackTrace: stackTrace);
+  }
 }
 
 class UnyeBuradaApp extends StatelessWidget {

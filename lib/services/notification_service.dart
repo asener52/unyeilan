@@ -48,9 +48,10 @@ class NotificationService {
     // Local notifications init
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosInit = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      // İzin FCM üzerinden tek kez istenir.
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
     );
     await _localNotifications.initialize(
       const InitializationSettings(android: androidInit, iOS: iosInit),
@@ -101,11 +102,14 @@ class NotificationService {
 
   Future<void> _registerToken() async {
     try {
-      String? token;
       if (Platform.isIOS) {
-        token = await _fcm.getAPNSToken();
+        // iOS'ta FCM token üretilebilmesi için APNs kaydının tamamlanmasını bekle.
+        for (var attempt = 0; attempt < 10; attempt++) {
+          if (await _fcm.getAPNSToken() != null) break;
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+        }
       }
-      token ??= await _fcm.getToken();
+      final token = await _fcm.getToken();
       if (token != null) {
         await ApiService().updateFcmToken(token);
       }
