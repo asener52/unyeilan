@@ -44,7 +44,8 @@ class ApiService {
       },
       onError: (error, handler) async {
         final status = error.response?.statusCode;
-        if (status == 401 || status == 403) {
+        final isPublicAuth = error.requestOptions.path.contains('/sms/kod-');
+        if ((status == 401 || status == 403) && !isPublicAuth) {
           // Token geçersiz veya süresi dolmuş — çıkış yap
           await StorageService.clear();
           // Global navigator ile login ekranına yönlendir
@@ -70,13 +71,28 @@ class ApiService {
   }
 
   // --- Auth ---
-  Future<Map<String, dynamic>> login(String email, String password, {String? fcmToken}) async {
-    final res = await _dio.post('/auth/login', data: {
-      'email': email,
-      'password': password,
+  Future<Map<String, dynamic>> requestLoginCode(String telefon) async {
+    final res = await _dio.post('/sms/kod-gonder', data: {'telefon': telefon});
+    return Map<String, dynamic>.from(res.data['data']);
+  }
+
+  Future<Map<String, dynamic>> verifyLoginCode(String token, String kod, {String? fcmToken}) async {
+    final res = await _dio.post('/sms/kod-dogrula', data: {
+      'token': token,
+      'kod': kod,
       if (fcmToken != null) 'fcm_token': fcmToken,
     });
-    return res.data['data'];
+    return Map<String, dynamic>.from(res.data['data']);
+  }
+
+  Future<void> sendAppFeedback({required int rating, String? comment}) async {
+    await _dio.post('/sikayet', data: {
+      'kategori': 'uygulama_degerlendirmesi',
+      'baslik': 'Uygulama Değerlendirmesi ($rating/5)',
+      'aciklama': (comment == null || comment.trim().isEmpty)
+          ? 'Kullanıcı uygulamaya $rating yıldız verdi.'
+          : comment.trim(),
+    });
   }
 
   Future<Map<String, dynamic>> register({

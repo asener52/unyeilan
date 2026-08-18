@@ -32,8 +32,12 @@ class HizmetlerScreen extends StatelessWidget {
             pinned: true,
             backgroundColor: AppColors.lacivermavi,
             foregroundColor: Colors.white,
-            leadingWidth: 0,
-            leading: const SizedBox.shrink(),
+            automaticallyImplyLeading: true,
+            leading: IconButton(
+              tooltip: 'Ana sayfaya dön',
+              icon: const Icon(Icons.arrow_back_rounded),
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
             title: const Text('Hizmetler',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
             bottom: PreferredSize(

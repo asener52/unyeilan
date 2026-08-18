@@ -153,6 +153,11 @@ class _HaritaScreenState extends State<HaritaScreen> {
                       padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
                       child: Row(
                         children: [
+                          IconButton(
+                            tooltip: 'Ana sayfaya dön',
+                            onPressed: () => Navigator.of(context).maybePop(),
+                            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                          ),
                           const Icon(Icons.map, color: Colors.white, size: 22),
                           const SizedBox(width: 8),
                           const Text(

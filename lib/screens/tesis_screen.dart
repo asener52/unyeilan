@@ -16,6 +16,14 @@ const _kategoriler = [
   ('diger', '📋', 'Diğer'),
 ];
 
+(String, String, String) _kategoriBilgisi(dynamic value) {
+  final key = value?.toString() ?? 'diger';
+  return _kategoriler.firstWhere(
+    (k) => k.$1 == key,
+    orElse: () => (key, '📍', key),
+  );
+}
+
 class TesisScreen extends StatefulWidget {
   const TesisScreen({super.key});
 
@@ -28,6 +36,7 @@ class _TesisScreenState extends State<TesisScreen> {
   bool _yukleniyor = true;
   String _seciliKat = '';
   bool _haritaGoster = false;
+  List<(String, String, String)> _gorunenKategoriler = List.of(_kategoriler);
 
   @override
   void initState() {
@@ -39,7 +48,15 @@ class _TesisScreenState extends State<TesisScreen> {
     setState(() => _yukleniyor = true);
     try {
       final data = await ApiService().getTesisler(kategori: _seciliKat.isEmpty ? null : _seciliKat);
-      if (mounted) setState(() { _liste = data; _yukleniyor = false; });
+      if (mounted) setState(() {
+        _liste = data;
+        if (_seciliKat.isEmpty) {
+          final known = _kategoriler.map((k) => k.$1).toSet();
+          final custom = data.map((t) => t['kategori']?.toString() ?? '').where((k) => k.isNotEmpty && !known.contains(k)).toSet();
+          _gorunenKategoriler = [..._kategoriler, ...custom.map((k) => (k, '📍', k))];
+        }
+        _yukleniyor = false;
+      });
     } catch (_) {
       if (mounted) setState(() => _yukleniyor = false);
     }
@@ -74,9 +91,9 @@ class _TesisScreenState extends State<TesisScreen> {
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              itemCount: _kategoriler.length,
+              itemCount: _gorunenKategoriler.length,
               itemBuilder: (ctx, i) {
-                final k = _kategoriler[i];
+                final k = _gorunenKategoriler[i];
                 final sel = _seciliKat == k.$1;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
@@ -137,10 +154,7 @@ class _TesisKarti extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final kat = _kategoriler.firstWhere(
-      (k) => k.$1 == tesis['kategori'],
-      orElse: () => const ('diger', '📋', 'Diğer'),
-    );
+    final kat = _kategoriBilgisi(tesis['kategori']);
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => _TesisDetayScreen(tesis: tesis))),
       child: Container(
@@ -235,10 +249,7 @@ class _HaritaView extends StatelessWidget {
           markers: noktalar.map((t) {
             final lat = double.tryParse(t['lat'].toString()) ?? 0;
             final lng = double.tryParse(t['lng'].toString()) ?? 0;
-            final kat = _kategoriler.firstWhere(
-              (k) => k.$1 == t['kategori'],
-              orElse: () => const ('diger', '📋', 'Diğer'),
-            );
+            final kat = _kategoriBilgisi(t['kategori']);
             return Marker(
               point: LatLng(lat, lng),
               child: GestureDetector(
@@ -313,10 +324,7 @@ class _TesisDetayScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final kat = _kategoriler.firstWhere(
-      (k) => k.$1 == tesis['kategori'],
-      orElse: () => const ('diger', '📋', 'Diğer'),
-    );
+    final kat = _kategoriBilgisi(tesis['kategori']);
     final lat = tesis['lat'] != null ? double.tryParse(tesis['lat'].toString()) : null;
     final lng = tesis['lng'] != null ? double.tryParse(tesis['lng'].toString()) : null;
 

@@ -8,7 +8,6 @@ import '../providers/content_provider.dart';
 import '../utils/theme.dart';
 import '../models/icerik.dart';
 import '../services/konum_service.dart';
-import '../widgets/hava_widget.dart';
 
 import 'content_detail_screen.dart';
 import 'notifications_screen.dart';
@@ -24,6 +23,7 @@ import 'muhtar_screen.dart';
 import 'acil_screen.dart';
 import 'iletisim_screen.dart';
 import 'sikayet_screen.dart';
+import 'tesis_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -725,7 +725,7 @@ class _SeninBelediyen extends StatelessWidget {
                 ikon: Icons.location_city_rounded,
                 renk: AppColors.turkuaz,
                 label: 'Tesislerimiz',
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HizmetlerScreen())),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TesisScreen())),
               ),
             ],
           ),

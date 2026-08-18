@@ -79,10 +79,18 @@ class _DuyurularScreenState extends State<DuyurularScreen> {
             backgroundColor: Colors.white,
             elevation: 0,
             surfaceTintColor: Colors.transparent,
-            leading: _aramaAcik
-                ? null
-                : const SizedBox.shrink(),
-            leadingWidth: _aramaAcik ? 56 : 0,
+            leading: IconButton(
+              tooltip: _aramaAcik ? 'Aramayı kapat' : 'Ana sayfaya dön',
+              icon: Icon(_aramaAcik ? Icons.close_rounded : Icons.arrow_back_rounded, color: AppColors.anaMetin),
+              onPressed: () {
+                if (_aramaAcik) {
+                  setState(() { _aramaAcik = false; _arama = ''; _aramaCtrl.clear(); });
+                } else {
+                  Navigator.of(context).maybePop();
+                }
+              },
+            ),
+            leadingWidth: 56,
             title: _aramaAcik
                 ? TextField(
                     controller: _aramaCtrl,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../providers/auth_provider.dart';
 import '../providers/content_provider.dart';
 import '../services/api_service.dart';
@@ -544,7 +545,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             icon: Icons.info_outline_rounded,
                             iconColor: AppColors.ikinciMetin,
                             title: 'Uygulama Hakkında',
-                            subtitle: 'e-Ünye Duyuru v2.0.0',
+                            subtitle: 'e-Ünye Duyuru v2.0.7',
                             onTap: () => _showAbout(context),
                           ),
                           const Divider(height: 1, color: AppColors.cizgi, indent: 56),
@@ -552,7 +553,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             icon: Icons.star_outline_rounded,
                             iconColor: AppColors.uyari,
                             title: 'Uygulamayı Değerlendir',
-                            onTap: () {},
+                            subtitle: 'Yıldız verin veya görüşünüzü paylaşın',
+                            onTap: () => _showRating(context),
                           ),
                         ]),
 
@@ -630,12 +632,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 16),
             const Text('e-Ünye Duyuru', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.anaMetin)),
             const SizedBox(height: 4),
-            const Text('Sürüm 2.0.0', style: TextStyle(fontSize: 13, color: AppColors.ikinciMetin)),
+            const Text('Sürüm 2.0.7', style: TextStyle(fontSize: 13, color: AppColors.ikinciMetin)),
             const SizedBox(height: 12),
             const Text('Ünye Belediyesi\'nin resmi mobil uygulamasıdır.\nÜnye\'nin haberi burada, hizmeti yanınızda.',
                 textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: AppColors.ikinciMetin, height: 1.5)),
             const SizedBox(height: 16),
-            const Text('© 2024 Ünye Belediyesi', style: TextStyle(fontSize: 11, color: AppColors.ikinciMetin)),
+            Text('© ${DateTime.now().year} Ünye Belediyesi', style: const TextStyle(fontSize: 11, color: AppColors.ikinciMetin)),
           ],
         ),
         actions: [
@@ -646,6 +648,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _openStore() async {
+    const packageId = 'tr.gov.unye.unye_ilan';
+    final market = Uri.parse('market://details?id=$packageId');
+    final web = Uri.parse('https://play.google.com/store/apps/details?id=$packageId');
+    if (!await launchUrl(market, mode: LaunchMode.externalApplication)) {
+      await launchUrl(web, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Future<void> _showRating(BuildContext context) async {
+    int rating = 0;
+    bool sending = false;
+    final comment = TextEditingController();
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text('Uygulamayı Değerlendir', style: TextStyle(fontWeight: FontWeight.w700)),
+          content: SingleChildScrollView(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              const Text('Deneyiminizi yıldızla değerlendirin ve geliştirmemize yardımcı olacak görüşlerinizi paylaşın.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.ikinciMetin, height: 1.4)),
+              const SizedBox(height: 16),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(5, (index) => IconButton(
+                tooltip: '${index + 1} yıldız',
+                onPressed: sending ? null : () => setDialogState(() => rating = index + 1),
+                icon: Icon(index < rating ? Icons.star_rounded : Icons.star_border_rounded, color: AppColors.uyari, size: 34),
+              ))),
+              if (rating > 0) Text('$rating / 5', style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.anaMetin)),
+              const SizedBox(height: 14),
+              TextField(controller: comment, enabled: !sending, minLines: 3, maxLines: 5, maxLength: 1000, decoration: InputDecoration(labelText: 'Görüşünüz (isteğe bağlı)', hintText: 'Beğendiğiniz veya geliştirilmesini istediğiniz noktalar...', alignLabelWithHint: true, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(onPressed: sending ? null : _openStore, icon: const Icon(Icons.open_in_new_rounded), label: const Text('Google Play’de Değerlendir')),
+            ]),
+          ),
+          actions: [
+            TextButton(onPressed: sending ? null : () => Navigator.pop(dialogContext), child: const Text('Vazgeç')),
+            ElevatedButton(
+              onPressed: sending || rating == 0 ? null : () async {
+                setDialogState(() => sending = true);
+                try {
+                  await ApiService().sendAppFeedback(rating: rating, comment: comment.text);
+                  if (dialogContext.mounted) Navigator.pop(dialogContext);
+                  if (mounted) ScaffoldMessenger.of(this.context).showSnackBar(const SnackBar(content: Text('Değerlendirmeniz için teşekkür ederiz.'), backgroundColor: AppColors.basarili));
+                } catch (_) {
+                  setDialogState(() => sending = false);
+                  if (mounted) ScaffoldMessenger.of(this.context).showSnackBar(const SnackBar(content: Text('Değerlendirme gönderilemedi. Lütfen tekrar deneyin.'), backgroundColor: AppColors.acil));
+                }
+              },
+              child: sending ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('Geri Bildirim Gönder'),
+            ),
+          ],
+        ),
+      ),
+    );
+    comment.dispose();
   }
 }
 

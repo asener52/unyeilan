@@ -224,8 +224,35 @@ class _SikayetFormScreenState extends State<SikayetFormScreen> {
   final _aciklamaCtrl = TextEditingController();
   final _adresCtrl = TextEditingController();
   String _kategori = 'diger';
+  List<(String, String, String)> _kategoriListesi = List.of(_kategoriler);
   File? _foto;
   bool _gonderiliyor = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _kategorileriYukle();
+  }
+
+  Future<void> _kategorileriYukle() async {
+    try {
+      final dio = Dio(BaseOptions(baseUrl: ApiConfig.baseUrl));
+      final response = await dio.get('/sikayet/kategoriler');
+      final data = List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+      if (!mounted || data.isEmpty) return;
+      final liste = data.map((k) => (
+        k['kod'].toString(),
+        (k['ikon'] ?? '📋').toString(),
+        k['ad'].toString(),
+      )).toList();
+      setState(() {
+        _kategoriListesi = liste;
+        if (!liste.any((k) => k.$1 == _kategori)) _kategori = liste.first.$1;
+      });
+    } catch (_) {
+      // Ağ erişilemezse paketle gelen varsayılan kategoriler kullanılır.
+    }
+  }
 
   Future<void> _foto_sec() async {
     final picker = ImagePicker();
@@ -296,7 +323,7 @@ class _SikayetFormScreenState extends State<SikayetFormScreen> {
             const SizedBox(height: 8),
             Wrap(
               spacing: 8, runSpacing: 8,
-              children: _kategoriler.map((k) {
+              children: _kategoriListesi.map((k) {
                 final sel = _kategori == k.$1;
                 return GestureDetector(
                   onTap: () => setState(() => _kategori = k.$1),

@@ -24,13 +24,28 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<Map<String, dynamic>?> requestLoginCode(String telefon) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      return await ApiService().requestLoginCode(telefon);
+    } catch (e) {
+      _error = _parseError(e);
+      return null;
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> verifyLoginCode(String token, String kod) async {
     _loading = true;
     _error = null;
     notifyListeners();
     try {
       final fcmToken = await NotificationService().getToken();
-      final data = await ApiService().login(email, password, fcmToken: fcmToken);
+      final data = await ApiService().verifyLoginCode(token, kod, fcmToken: fcmToken);
       await _saveSession(data);
       return true;
     } catch (e) {
@@ -145,7 +160,14 @@ class AuthProvider extends ChangeNotifier {
           return 'Güvenli bağlantı kurulamadı. Lütfen tekrar deneyin.';
         case DioExceptionType.badResponse:
           final status = e.response?.statusCode;
-          if (status == 401) return 'E-posta veya şifre hatalı';
+          if (status == 401) {
+            final body = e.response?.data;
+            return (body is Map ? body['message'] : null)?.toString() ?? 'Doğrulama kodu hatalı';
+          }
+          if (status == 404 || status == 429 || status == 503) {
+            final body = e.response?.data;
+            return (body is Map ? body['message'] : null)?.toString() ?? 'İşlem tamamlanamadı';
+          }
           if (status == 409) return 'Bu e-posta zaten kayıtlı';
           if (status == 400) {
             final body = e.response?.data;
